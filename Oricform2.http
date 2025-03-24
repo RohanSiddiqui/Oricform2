@@ -1,0 +1,6 @@
+@Oricform2_HostAddress = http://localhost:5137
+
+GET {{Oricform2_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
