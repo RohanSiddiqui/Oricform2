@@ -6,17 +6,14 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
-
-// Add controller services
 builder.Services.AddControllers();
-
-// Add Swagger for API documentation with JWT authentication
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -46,24 +43,21 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// Add Logging
+// Logging & CORS
 builder.Services.AddLogging();
-
-// Enable CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins", policy =>
         policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 });
 
-// Check if JWT key exists
+// ✅ Check if JWT settings exist
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey))
 {
     throw new InvalidOperationException("JWT Key is missing from configuration.");
 }
 
-// Configure JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -83,10 +77,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// ✅ Fix: Move this BEFORE `builder.Build()`
-builder.Services.AddScoped<EmailService>();
+var app = builder.Build(); // ✅ No service modifications after this
 
-var app = builder.Build();
+app.MapGet("/", () => "Hello from Render!");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -97,13 +90,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
-app.UseCors("AllowAllOrigins"); // ✅ Correct CORS placement
+app.UseCors("AllowAllOrigins");
 
-// app.UseHttpsRedirection(); // Comment this if testing with HTTP
+// app.UseHttpsRedirection(); // Uncomment if using HTTPS
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

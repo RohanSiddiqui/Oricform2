@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Copy project files and restore dependencies
 COPY . ./
-RUN dotnet restore
+RUN dotnet restore Oricform2.csproj
 
 # Build the project
 RUN dotnet publish -c Release -o /out
