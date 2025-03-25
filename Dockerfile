@@ -16,4 +16,4 @@ COPY --from=build /out ./
 
 # Expose port 80 and run the app
 EXPOSE 80
-CMD ["dotnet", "YourProject.dll"]
+CMD ["dotnet", "Oricform2.dll"]
